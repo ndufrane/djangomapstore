@@ -1,0 +1,182 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>map4imio</title>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.6.4/ol.css" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <link rel="stylesheet" href="{% static "assets/css/mapstore2.css" %}">
+        <style>
+            #container {
+                position: absolute;
+                top: 0px;
+                bottom: 0px;
+                height: 100%;
+                width: 100%;
+                overflow: hidden;
+            }
+            #map {
+                position:absolute;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            h1 {
+                text-align: center;
+            }
+        </style>
+        <!--script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.10/proj4.js"></script-->
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.6.4/ol.js"></script>
+        
+
+    </head>
+    <body onload="init()">
+        <div id="container"></div>
+       
+       
+
+        {%  if MAP_DEBUG %}
+        <script id="imiomap" src="http://localhost:8081/dist/imiomap.js"></script>
+        {% else %}
+        <script id="imiomap" src="{% static "mapstore/dist/imiomap.js" %}"></script>
+        {% endif %}
+
+
+        {% block plugins %}
+        <!-- load plugins config-->
+        {% endblock %}
+       
+        <script>
+            /*eslint-disable */
+        function init() {
+        /*eslint-enable */
+            var cfg;
+            var cfgUrl;
+            var theme;
+            var embeddedPlugins;
+            var pluginsCfg;
+
+            /*eslint-disable */
+            cfg = MapStore2.loadConfigFromStorage('mapstore.example.plugins.' + MapStore2.getParamFromRequest('map'));
+            cfgUrl = MapStore2.getParamFromRequest('config') || "{% static "config.json" %}";
+            theme = MapStore2.getParamFromRequest('theme');
+            /*eslint-enable */
+            embeddedPlugins = {
+                "desktop": [
+                    "Map",
+                    "MousePosition",
+                    "Toolbar",
+                    "ZoomAll",
+                    "Expander",
+                    "ZoomIn",
+                    "ZoomOut",
+                    "ScaleBox",
+                    "OmniBar",
+                    "Search",
+                    "DrawerMenu",
+                    "TOC",
+                    {
+                        "name": "BackgroundSelector",
+                        "cfg": {
+                                "bottom": 25,
+                                "dimensions": {
+                                "side": 65,
+                                "sidePreview": 65,
+                                "frame": 3,
+                                "margin": 5,
+                                "label": false,
+                                "vertical": true
+                            }
+                        }
+                    }, {
+                        "name":"Identify",
+
+                        "cfg": {
+                            "showFullscreen": false,
+                            "dock": false,
+                            "position": "bottom",
+                            "size": 0.5,
+                            "fluid": true,
+                            "viewerOptions": {
+                                "container": "{context.ReactSwipe}"
+                            }
+
+                        }
+                    },
+                    "FullScreen",
+                    "UrbanMap",
+                    "CadasterViewer",
+                    "UrbanMapQueryParcel"
+                ]};
+            /*eslint-disable */
+            pluginsCfg = cfg && MapStore2.buildPluginsCfg(cfg.pluginsCfg.standard, cfg.userCfg) || embeddedPlugins;
+            MapStore2.create('container', {
+                plugins: pluginsCfg,
+                configUrl: cfgUrl,
+                initialState: cfg && cfg.state && {
+                    defaultState: cfg.state
+                } ||  {
+                    defaultState: {
+                        maptype: {
+                                "mapType": 'openlayers'
+                        },
+                        mapInfo: {enabled: true, infoFormat: "text/html" }
+                    }
+                },
+                proxy: "{{ SITEURL }}proxy/",
+                translations: '{% static "mapstore/MapStore2/web/client/translations" %}',
+                style: cfg && cfg.customStyle,
+                theme: theme ? {
+                    theme: theme,
+                    path: '{% static "mapstore/dist/themes" %}'
+                } : {
+                    path: '{% static "mapstore/dist/themes" %}'
+                }
+            });
+            MapStore2.onAction('CHANGE_MAP_VIEW', function(action) {
+                console.log('ZOOM: ' + action.zoom);
+            });
+            MapStore2.onStateChange(function(map) {
+                console.log('STATE ZOOM: ' + map.zoom);
+            }, function(state) {
+                return (state.map && state.map.present) || state.map || {}
+            });
+
+                // ReloadMapConfig because of INIT_MAP action throws after the load
+                MapStore2.onAction('INIT_MAP', function(action) {
+                    loadMapConfig(cfgUrl).then(function(mapconfig) {
+                        MapStore2.triggerAction({
+                            type: 'MAP_CONFIG_LOADED',
+                            config: mapconfig,
+                            legacy: !!mapconfig.map && mapconfig.map.info && mapconfig.map.info.id,
+                            mapId: mapconfig.map && mapconfig.map.info && mapconfig.map.info.id
+                        });
+                    });
+                });      
+
+            /*
+            document.getElementById("zoomToUSA").addEventListener("click", function() {
+                MapStore2.triggerAction({
+                type: 'ZOOM_TO_EXTENT',
+                extent: {
+                    minx: '-124.731422',
+                    miny: '24.955967',
+                    maxx: '-66.969849',
+                    maxy: '49.371735'
+                },
+                crs: 'EPSG:4326'
+            });
+            });
+            */
+            /*eslint-enable */
+        }
+        </script>
+    </body>
+
+</html>

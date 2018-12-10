@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>map4imio</title>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.6.4/ol.css" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <link rel="stylesheet" href="assets/css/mapstore2.css">
+        <style>
+            #container {
+                position: absolute;
+                top: 250px;
+                bottom: 250px;
+                width: 100%;
+                overflow: hidden;
+            }
+            #map {
+                position:absolute;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            h1 {
+                text-align: center;
+            }
+        </style>
+        <!--script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.10/proj4.js"></script-->
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.6.4/ol.js"></script>
+        
+
+    </head>
+    <body onload="init()">
+        <div id="container"></div>
+        <script src="init.js"></script>
+        <script src="dist/imiomap.js"></script>
+    </body>
+
+</html>

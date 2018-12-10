@@ -1,0 +1,25 @@
+{
+	"proxyUrl": "/imiomap/proxy/?url=",
+	"geoStoreUrl": "/imiomap/rest/geostore",
+	"printUrl": "https://imiomap/geoserver/pdf/info.json",
+	"proxyUrl": {
+		"url": "/imiomap/proxy/?url=",
+		"useCORS": ["http://geoservices.wallonie.be"]
+	},
+  	"themePrefix": "imiomap",
+	"translationsPath": ["./MapStore2/web/client/translations","./js/translations"],
+	"initialState": {
+		"defaultState": {
+			"maptype": {
+					"mapType": "{context.mode === 'desktop' ? 'openlayers' : 'leaflet'}"
+			}
+
+		}
+	},
+	"plugins": {
+			"desktop": [
+				"Map",
+				"Home"
+			]
+	}
+}
